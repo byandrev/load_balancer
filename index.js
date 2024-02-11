@@ -31,10 +31,14 @@ function newAbortSignal(timeoutMs) {
 }
 
 const handler = async (code, language, input, res) => {
-  const server = SERVERS[current];
+  let server = SERVERS[current];
 
-  SERVERS_LOAD[current].count += 1;
-  current === SERVERS.length - 1 ? (current = 0) : current++;
+  if (language === "cpp" || language === "cpp17" || language === "c" || language === "cs") {
+    SERVERS_LOAD[current].count += 1;
+    current === SERVERS.length - 1 ? (current = 0) : current++;
+  } else {
+    server = "https://rpcide-executer-1.fly.dev";
+  }
 
   console.log("Using server: " + server);
 
