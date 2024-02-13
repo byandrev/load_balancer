@@ -33,7 +33,13 @@ function newAbortSignal(timeoutMs) {
 const handler = async (code, language, input, res) => {
   let server = SERVERS[current];
 
-  if (language === "cpp" || language === "cpp17" || language === "c" || language === "cs") {
+  if (
+    language === "cpp" ||
+    language === "cpp17" ||
+    language === "cpp20" ||
+    language === "c" ||
+    language === "cs"
+  ) {
     SERVERS_LOAD[current].count += 1;
     current === SERVERS.length - 1 ? (current = 0) : current++;
   } else {
