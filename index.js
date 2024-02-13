@@ -96,12 +96,11 @@ const handlerFormat = async (body, res) => {
     const response = await axios({
       url: `${server}/format`,
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      data: new URLSearchParams({
+      data: {
         code: body.code,
         language: body.language,
-        options: body.options || { indentWidth: 2 },
-      }),
+        options: body.options,
+      },
       signal: newAbortSignal(ABORT_TIME_OUT),
     });
     res.json(response.data);
