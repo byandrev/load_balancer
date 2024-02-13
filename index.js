@@ -30,7 +30,7 @@ function newAbortSignal(timeoutMs) {
   return abortController.signal;
 }
 
-const handler = async (code, language, input, res) => {
+const handlerSubmit = async (code, language, input, res) => {
   let server = SERVERS[current];
 
   if (
@@ -67,6 +67,50 @@ const handler = async (code, language, input, res) => {
   }
 };
 
+const handlerFormat = async (body, res) => {
+  let server = SERVERS[current];
+
+  if (!body.code || !body.language) {
+    return res.status(400).json({
+      error: "Field code and language is required",
+      timestamp: Date.now(),
+    });
+  }
+
+  if (
+    language === "cpp" ||
+    language === "cpp17" ||
+    language === "cpp20" ||
+    language === "c" ||
+    language === "cs"
+  ) {
+    SERVERS_LOAD[current].count += 1;
+    current === SERVERS.length - 1 ? (current = 0) : current++;
+  } else {
+    server = "https://rpcide-executer-1.fly.dev";
+  }
+
+  console.log("Using server: " + server);
+
+  try {
+    const response = await axios({
+      url: `${server}/format`,
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      data: new URLSearchParams({
+        code: code,
+        language: language,
+        options: body.options,
+      }),
+      signal: newAbortSignal(ABORT_TIME_OUT),
+    });
+    res.json(response.data);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Server error", timestamp: Date.now() });
+  }
+};
+
 app.get("/", (_, res) => {
   res.send("Hello");
 });
@@ -77,7 +121,11 @@ app.get("/servers", (_, res) => {
 
 app.post("/submit", (req, res) => {
   const { code, language, input } = req.body;
-  return handler(code, language, input, res);
+  return handlerSubmit(code, language, input, res);
+});
+
+app.post("/format", (req, res) => {
+  return handlerFormat(req.body, res);
 });
 
 app.get("/load", (_, res) => {
