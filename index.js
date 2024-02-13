@@ -78,11 +78,11 @@ const handlerFormat = async (body, res) => {
   }
 
   if (
-    language === "cpp" ||
-    language === "cpp17" ||
-    language === "cpp20" ||
-    language === "c" ||
-    language === "cs"
+    body.language === "cpp" ||
+    body.language === "cpp17" ||
+    body.language === "cpp20" ||
+    body.language === "c" ||
+    body.language === "cs"
   ) {
     SERVERS_LOAD[current].count += 1;
     current === SERVERS.length - 1 ? (current = 0) : current++;
@@ -98,8 +98,8 @@ const handlerFormat = async (body, res) => {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       data: new URLSearchParams({
-        code: code,
-        language: language,
+        code: body.code,
+        language: body.language,
         options: body.options,
       }),
       signal: newAbortSignal(ABORT_TIME_OUT),
