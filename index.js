@@ -100,7 +100,7 @@ const handlerFormat = async (body, res) => {
       data: new URLSearchParams({
         code: body.code,
         language: body.language,
-        options: body.options,
+        options: body.options || { indentWidth: 2 },
       }),
       signal: newAbortSignal(ABORT_TIME_OUT),
     });
