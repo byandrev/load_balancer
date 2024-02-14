@@ -98,7 +98,10 @@ const handlerFormat = async (body, res) => {
       method: "POST",
       data: {
         code: body.code,
-        language: body.language,
+        language:
+          body.language === "c" || body.language === "cs"
+            ? "cpp"
+            : body.language,
         options: body.options,
       },
       signal: newAbortSignal(ABORT_TIME_OUT),
