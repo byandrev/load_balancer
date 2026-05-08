@@ -158,6 +158,29 @@ app.get("/load", (_, res) => {
   res.json({ SERVERS_LOAD });
 });
 
+app.get("/ram", async (_, res) => {
+  try {
+    const loads = SERVERS_LOAD.map(async (server) => {
+      const response = await axios({
+        url: `${SERVERS[0]}/free-ram`,
+        method: "GET",
+        signal: newAbortSignal(ABORT_TIME_OUT),
+      });
+
+      return {
+        data: response.data,
+        server: server.name,
+        count: server.count,
+      };
+    });
+
+    return res.json(await Promise.all(loads));
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Server error", timestamp: Date.now() });
+  }
+});
+
 app.listen(PORT, () => {
   console.log("Server listening");
 });
