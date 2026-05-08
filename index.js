@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: process.env.ORIGINS || "*",
-  })
+  }),
 );
 
 const PORT = process.env.PORT || 8080;
@@ -30,33 +30,36 @@ function newAbortSignal(timeoutMs) {
   return abortController.signal;
 }
 
-const handlerSubmit = async (code, language, input, res) => {
+const handlerSubmit = async (
+  code,
+  language,
+  input,
+  timeout,
+  memoryLimit,
+  callback_url,
+  expected,
+  res,
+) => {
   let server = SERVERS[current];
 
-  if (
-    language === "cpp" ||
-    language === "cpp17" ||
-    language === "cpp20" ||
-    language === "c" ||
-    language === "cs"
-  ) {
-    SERVERS_LOAD[current].count += 1;
-    current === SERVERS.length - 1 ? (current = 0) : current++;
-  } else {
-    server = "https://rpcide-executer-1.fly.dev";
-  }
+  SERVERS_LOAD[current].count += 1;
+  current === SERVERS.length - 1 ? (current = 0) : current++;
 
   console.log("Using server: " + server);
 
   try {
     const response = await axios({
-      url: `${server}/`,
+      url: `${server}/submit`,
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       data: new URLSearchParams({
         code: code,
         language: language,
         input: input,
+        timeout: timeout,
+        memoryLimit: memoryLimit,
+        callback_url: callback_url,
+        expected: expected,
       }),
       signal: newAbortSignal(ABORT_TIME_OUT),
     });
@@ -77,18 +80,8 @@ const handlerFormat = async (body, res) => {
     });
   }
 
-  if (
-    body.language === "cpp" ||
-    body.language === "cpp17" ||
-    body.language === "cpp20" ||
-    body.language === "c" ||
-    body.language === "cs"
-  ) {
-    SERVERS_LOAD[current].count += 1;
-    current === SERVERS.length - 1 ? (current = 0) : current++;
-  } else {
-    server = "https://rpcide-executer-1.fly.dev";
-  }
+  SERVERS_LOAD[current].count += 1;
+  current === SERVERS.length - 1 ? (current = 0) : current++;
 
   console.log("Using server: " + server);
 
@@ -121,9 +114,37 @@ app.get("/servers", (_, res) => {
   res.json({ SERVERS });
 });
 
+/*
+ * Body params:
+ *   - language (string, required): Lenguaje de programación (py, js, cpp, c, java, cs, go)
+ *   - code (string, required): Código a ejecutar
+ *   - input (string, optional): Input para el código
+ *   - timeout (number, optional): Timeout en segundos (1-60, default: config.TIMEOUT)
+ *   - memoryLimit (number, optional): Límite de memoria en MB (1-2048, default: config.MEMORY_LIMIT)
+ *   - callback_url (string, optional): URL para recibir el resultado cuando termine
+ *   - expected (string, optional): Output esperado para comparar con el resultado
+ */
 app.post("/submit", (req, res) => {
-  const { code, language, input } = req.body;
-  return handlerSubmit(code, language, input, res);
+  const {
+    code,
+    language,
+    input,
+    timeout,
+    memoryLimit,
+    callback_url,
+    expected,
+  } = req.body;
+
+  return handlerSubmit(
+    code,
+    language,
+    input,
+    timeout,
+    memoryLimit,
+    callback_url,
+    expected,
+    res,
+  );
 });
 
 app.post("/format", (req, res) => {

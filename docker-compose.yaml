@@ -1,0 +1,16 @@
+services:
+  balancer.rpcide:
+    build: .
+    volumes:
+      - .:/app
+      - /app/node_modules
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "4010:4010"
+    environment:
+      - PORT=4010
+      - SERVERS=${SERVERS}
+      - ORIGINS=${ORIGINS}
+      - ABORT_TIME_OUT=${ABORT_TIME_OUT}
+    command: npm start
