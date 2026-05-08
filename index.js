@@ -47,20 +47,19 @@ const handlerSubmit = async (
 
   console.log("Using server: " + server);
 
+  const data = { code: code, language: language, input: input };
+
+  if (timeout) data.timeout = timeout;
+  if (memoryLimit) data.memoryLimit = memoryLimit;
+  if (callback_url) data.callback_url = callback_url;
+  if (expected) data.expected = expected;
+
   try {
     const response = await axios({
       url: `${server}/submit`,
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      data: new URLSearchParams({
-        code: code,
-        language: language,
-        input: input,
-        timeout: timeout,
-        memoryLimit: memoryLimit,
-        callback_url: callback_url,
-        expected: expected,
-      }),
+      data: new URLSearchParams(data),
       signal: newAbortSignal(ABORT_TIME_OUT),
     });
     res.json(response.data);
