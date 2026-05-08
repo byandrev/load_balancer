@@ -49,10 +49,14 @@ const handlerSubmit = async (
 
   const data = { code: code, language: language, input: input };
 
-  if (timeout) data.timeout = timeout;
-  if (memoryLimit) data.memoryLimit = memoryLimit;
-  if (callback_url) data.callback_url = callback_url;
-  if (expected) data.expected = expected;
+  if (timeout && typeof timeout === "number") data.timeout = timeout;
+  if (memoryLimit && typeof memoryLimit === "number")
+    data.memoryLimit = memoryLimit;
+  if (callback_url && typeof callback_url === "string")
+    data.callback_url = callback_url;
+  if (expected && typeof expected === "string") data.expected = expected;
+
+  console.log("Data to send: ", data);
 
   try {
     const response = await axios({
