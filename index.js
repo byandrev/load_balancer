@@ -165,9 +165,9 @@ app.get("/health", (_, res) => {
 
 app.get("/ram", async (_, res) => {
   try {
-    const loads = SERVERS_LOAD.map(async (server) => {
+    const loads = SERVERS_LOAD.map(async (server, index) => {
       const response = await axios({
-        url: `${SERVERS[0]}/free-ram`,
+        url: `${SERVERS[index]}/free-ram`,
         method: "GET",
         signal: newAbortSignal(ABORT_TIME_OUT),
       });
