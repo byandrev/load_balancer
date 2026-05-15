@@ -158,6 +158,11 @@ app.get("/load", (_, res) => {
   res.json({ SERVERS_LOAD });
 });
 
+app.get("/health", (_, res) => {
+  res.json({ status: "ok", timestamp: Date.now() });
+});
+
+
 app.get("/ram", async (_, res) => {
   try {
     const loads = SERVERS_LOAD.map(async (server) => {
