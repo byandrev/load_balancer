@@ -162,7 +162,6 @@ app.get("/health", (_, res) => {
   res.json({ status: "ok", timestamp: Date.now() });
 });
 
-
 app.get("/ram", async (_, res) => {
   try {
     const loads = SERVERS_LOAD.map(async (server, index) => {
@@ -172,10 +171,17 @@ app.get("/ram", async (_, res) => {
         signal: newAbortSignal(ABORT_TIME_OUT),
       });
 
+      const healthResponse = await axios({
+        url: `${SERVERS[index]}/health`,
+        method: "GET",
+        signal: newAbortSignal(ABORT_TIME_OUT),
+      });
+
       return {
         data: response.data,
         server: server.name,
         count: server.count,
+        status: healthResponse,
       };
     });
 
