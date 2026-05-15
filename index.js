@@ -181,7 +181,7 @@ app.get("/ram", async (_, res) => {
         data: response.data,
         server: server.name,
         count: server.count,
-        status: healthResponse,
+        status: healthResponse?.data?.status || "unknown",
       };
     });
 
